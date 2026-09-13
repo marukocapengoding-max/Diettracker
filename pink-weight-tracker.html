@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peach's Journey 🍑 Weight & Mood Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#fff2f6;
+    --bg-bottom:#ffe3ee;
+    --pink-strong:#ff6f9d;
+    --pink-mid:#ffb3cd;
+    --pink-soft:#ffe0ec;
+    --pink-line:#ffc8dc;
+    --plum:#5b3448;
+    --plum-soft:#8a6577;
+    --mint:#7fd8b0;
+    --peach:#ffb98a;
+    --card:#ffffff;
+    --shadow: 0 10px 30px rgba(255,111,157,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background: radial-gradient(circle at 15% 0%, var(--bg-top), var(--bg-bottom) 70%);
+    font-family:'Nunito', sans-serif;
+    color:var(--plum);
+    padding:28px 16px 60px;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  h1,h2,h3{font-family:'Baloo 2', sans-serif;margin:0;}
+  .brand{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:22px;
+  }
+  .brand .left{display:flex;align-items:center;gap:10px;}
+  .streak-badge{
+    display:flex;flex-direction:column;align-items:center;
+    background:linear-gradient(135deg,#fff2f6,var(--pink-soft));
+    border:2px solid var(--pink-line);
+    border-radius:18px;
+    padding:8px 14px;
+    box-shadow:var(--shadow);
+    animation:streakPop .35s ease;
+  }
+  .streak-badge .flame{font-size:22px;line-height:1;}
+  .streak-badge .num{font-family:'Baloo 2';font-weight:800;font-size:15px;color:var(--pink-strong);margin-top:1px;}
+  .streak-badge .lbl{font-size:9.5px;color:var(--plum-soft);letter-spacing:.2px;}
+  .streak-badge .best{font-size:9px;color:var(--plum-soft);margin-top:1px;}
+  @keyframes streakPop{
+    0%{transform:scale(.7);opacity:0;}
+    60%{transform:scale(1.12);opacity:1;}
+    100%{transform:scale(1);}
+  }
+  @keyframes flameBounce{
+    0%,100%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-3px) rotate(-6deg);}
+  }
+  .streak-badge.lit .flame{animation:flameBounce 1s ease-in-out infinite;}
+  .brand .blob{
+    width:44px;height:44px;border-radius:50% 50% 45% 55%/55% 45% 55% 45%;
+    background:linear-gradient(135deg,var(--pink-strong),var(--peach));
+    display:flex;align-items:center;justify-content:center;font-size:22px;
+    box-shadow:var(--shadow);
+  }
+  .brand h1{font-size:22px;color:var(--pink-strong);}
+  .brand p{margin:2px 0 0;font-size:13px;color:var(--plum-soft);}
+
+  .hero{
+    background:var(--card);
+    border-radius:28px;
+    padding:26px 22px;
+    box-shadow:var(--shadow);
+    display:flex;
+    gap:22px;
+    align-items:center;
+    margin-bottom:20px;
+  }
+  .ring-wrap{position:relative;width:132px;height:132px;flex:0 0 auto;}
+  .ring-wrap svg{transform:rotate(-90deg);}
+  .ring-center{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+  }
+  .ring-center .num{font-family:'Baloo 2';font-size:26px;color:var(--pink-strong);font-weight:800;}
+  .ring-center .lbl{font-size:11px;color:var(--plum-soft);}
+  .hero-info{flex:1;}
+  .hero-info .row{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--pink-line);}
+  .hero-info .row:last-child{border-bottom:none;}
+  .hero-info .row b{color:var(--plum);}
+  .hero-info .row span.val{font-weight:800;color:var(--pink-strong);}
+
+  .card{
+    background:var(--card);
+    border-radius:24px;
+    padding:22px;
+    box-shadow:var(--shadow);
+    margin-bottom:20px;
+  }
+  .card h2{font-size:17px;color:var(--pink-strong);margin-bottom:14px;}
+
+  form .field{margin-bottom:14px;}
+  label{display:block;font-size:12.5px;font-weight:700;color:var(--plum-soft);margin-bottom:6px;}
+  input[type=date], input[type=number], textarea{
+    width:100%;
+    border:2px solid var(--pink-line);
+    background:#fffafc;
+    border-radius:14px;
+    padding:10px 12px;
+    font-family:'Nunito';
+    font-size:14.5px;
+    color:var(--plum);
+    outline:none;
+  }
+  input:focus, textarea:focus{border-color:var(--pink-strong);}
+  textarea{min-height:70px;resize:vertical;}
+
+  .mood-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .mood-btn{
+    border:2px solid var(--pink-line);
+    background:#fffafc;
+    border-radius:14px;
+    padding:8px 10px;
+    font-size:20px;
+    cursor:pointer;
+    flex:1;
+    min-width:52px;
+    transition:transform .12s ease, border-color .12s ease;
+  }
+  .mood-btn.active{border-color:var(--pink-strong);background:var(--pink-soft);transform:scale(1.06);}
+
+  .save-btn{
+    width:100%;
+    background:linear-gradient(135deg,var(--pink-strong),#ff8fb3);
+    color:#fff;
+    border:none;
+    border-radius:16px;
+    padding:14px;
+    font-family:'Baloo 2';
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 8px 18px rgba(255,111,157,.35);
+  }
+  .save-btn:active{transform:translateY(1px);}
+
+  .week-bars{display:flex;align-items:flex-end;gap:8px;height:110px;margin-top:6px;}
+  .week-bars .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-end;height:100%;}
+  .week-bars .bar{width:100%;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,var(--pink-mid),var(--pink-strong));min-height:4px;}
+  .week-bars .day-lbl{font-size:10.5px;color:var(--plum-soft);}
+
+  .history-item{
+    border-radius:16px;
+    background:#fffafc;
+    border:1px solid var(--pink-line);
+    padding:12px 14px;
+    margin-bottom:10px;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .history-item .mood-emoji{font-size:22px;}
+  .history-item .meta{flex:1;}
+  .history-item .meta .top{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--plum);}
+  .history-item .meta .stats{font-size:12px;color:var(--plum-soft);margin-top:2px;}
+  .history-item .meta .note{font-size:13px;margin-top:6px;color:var(--plum);}
+  .del-btn{
+    border:none;background:none;color:#e08;opacity:.55;cursor:pointer;font-size:13px;
+  }
+  .empty{
+    text-align:center;color:var(--plum-soft);font-size:13.5px;padding:16px 4px;
+  }
+
+  .backup-row{display:flex;gap:10px;margin-top:6px;}
+  .ghost-btn{
+    flex:1;
+    background:var(--pink-soft);
+    border:2px dashed var(--pink-line);
+    color:var(--pink-strong);
+    border-radius:14px;
+    padding:10px;
+    font-family:'Baloo 2';
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .foot-note{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--plum-soft);
+    margin-top:8px;
+    line-height:1.5;
+  }
+  #importFile{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">
+    <div class="left">
+      <div class="blob">🍑</div>
+      <div>
+        <h1>Peach's Journey</h1>
+        <p>Progress kamu, dicatat pelan-pelan tiap hari</p>
+      </div>
+    </div>
+    <div class="streak-badge" id="streakBadge">
+      <div class="flame">🔥</div>
+      <div class="num" id="streakNum">0 hari</div>
+      <div class="lbl">streak</div>
+      <div class="best" id="streakBest">terbaik: 0</div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="ring-wrap">
+      <svg width="132" height="132" viewBox="0 0 132 132">
+        <circle cx="66" cy="66" r="56" stroke="#ffe0ec" stroke-width="14" fill="none"/>
+        <circle id="ringProgress" cx="66" cy="66" r="56" stroke="url(#grad)" stroke-width="14" fill="none"
+          stroke-linecap="round" stroke-dasharray="351.8" stroke-dashoffset="351.8"/>
+        <defs>
+          <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ff8fb3"/>
+            <stop offset="100%" stop-color="#ff6f9d"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="ring-center">
+        <div class="num" id="pctText">0%</div>
+        <div class="lbl">tercapai</div>
+      </div>
+    </div>
+    <div class="hero-info">
+      <div class="row"><span>Berat sekarang</span><span class="val" id="curWeight">60 kg</span></div>
+      <div class="row"><span>Target</span><span class="val" id="targetWeight">48 kg</span></div>
+      <div class="row"><span>Sudah turun</span><span class="val" id="lostKg">0 kg</span></div>
+      <div class="row"><span>Sisa hari ke target</span><span class="val" id="daysLeft">-</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📝 Input hari ini</h2>
+    <form id="entryForm">
+      <div class="field">
+        <label>Tanggal</label>
+        <input type="date" id="dateInput" required>
+      </div>
+      <div class="field">
+        <label>Berat badan (kg)</label>
+        <input type="number" id="weightInput" step="0.1" placeholder="cth: 59.4" required>
+      </div>
+      <div class="field">
+        <label>Total kalori hari ini</label>
+        <input type="number" id="calInput" placeholder="cth: 1500" required>
+      </div>
+      <div class="field">
+        <label>Mood hari ini</label>
+        <div class="mood-row" id="moodRow">
+          <button type="button" class="mood-btn" data-mood="🥳">🥳</button>
+          <button type="button" class="mood-btn" data-mood="😊">😊</button>
+          <button type="button" class="mood-btn" data-mood="😐">😐</button>
+          <button type="button" class="mood-btn" data-mood="😔">😔</button>
+          <button type="button" class="mood-btn" data-mood="😩">😩</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Keluh kesah / catatan (opsional)</label>
+        <textarea id="noteInput" placeholder="cerita aja di sini, ga ada yang judge kok..."></textarea>
+      </div>
+      <button type="submit" class="save-btn">Simpan progress hari ini 💗</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>📊 Kalori 7 hari terakhir</h2>
+    <div class="week-bars" id="weekBars"></div>
+  </div>
+
+  <div class="card">
+    <h2>📖 Riwayat</h2>
+    <div id="historyList"></div>
+  </div>
+
+  <div class="card">
+    <h2>💾 Cadangan data</h2>
+    <p style="font-size:12.5px;color:var(--plum-soft);margin-top:-6px;">
+      Data tersimpan otomatis di browser ini. Kalau pindah device/browser atau mau jaga-jaga, download cadangannya di sini.
+    </p>
+    <div class="backup-row">
+      <button class="ghost-btn" id="exportBtn">⬇️ Export backup</button>
+      <button class="ghost-btn" id="importBtn">⬆️ Import backup</button>
+      <input type="file" id="importFile" accept="application/json">
+    </div>
+    <div class="foot-note">Start: 13 Sep 2026 · Target: 13 Mar 2027 · 60kg → 48kg</div>
+  </div>
+
+</div>
+
+<script>
+const START_WEIGHT = 60;
+const TARGET_WEIGHT = 48;
+const START_DATE = new Date('2026-09-13T00:00:00');
+const TARGET_DATE = new Date('2027-03-13T00:00:00');
+const STORAGE_KEY = 'peachJourneyEntries_v1';
+
+let entries = [];
+let selectedMood = '😊';
+
+function loadEntries(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    entries = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    entries = [];
+  }
+}
+function saveEntries(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+}
+
+function todayStr(){
+  const d = new Date();
+  const off = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - off*60000);
+  return local.toISOString().slice(0,10);
+}
+
+function latestWeight(){
+  if(entries.length === 0) return START_WEIGHT;
+  const sorted = [...entries].sort((a,b)=> new Date(b.date) - new Date(a.date));
+  return sorted[0].weight;
+}
+
+function renderHero(){
+  const cur = latestWeight();
+  const lost = Math.max(0, START_WEIGHT - cur);
+  const totalToLose = START_WEIGHT - TARGET_WEIGHT;
+  const pct = Math.min(100, Math.max(0, (lost/totalToLose)*100));
+
+  document.getElementById('curWeight').textContent = cur.toFixed(1) + ' kg';
+  document.getElementById('targetWeight').textContent = TARGET_WEIGHT + ' kg';
+  document.getElementById('lostKg').textContent = lost.toFixed(1) + ' kg';
+  document.getElementById('pctText').textContent = Math.round(pct) + '%';
+
+  const circumference = 351.8;
+  const offset = circumference - (pct/100)*circumference;
+  document.getElementById('ringProgress').style.strokeDashoffset = offset;
+
+  const now = new Date();
+  const diffDays = Math.ceil((TARGET_DATE - now) / (1000*60*60*24));
+  document.getElementById('daysLeft').textContent = diffDays > 0 ? diffDays + ' hari' : 'Waktu habis';
+}
+
+function dateOnly(d){
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function calculateStreak(){
+  if(entries.length === 0) return {current:0, best:0};
+
+  const loggedDates = new Set(entries.map(e => e.date));
+  const allDatesSorted = [...loggedDates].sort();
+
+  // Longest ever streak (scan all logged dates for consecutive runs)
+  let best = 0, run = 0, prev = null;
+  allDatesSorted.forEach(ds => {
+    const d = new Date(ds+'T00:00:00');
+    if(prev){
+      const diff = Math.round((d - prev)/(1000*60*60*24));
+      run = diff === 1 ? run+1 : 1;
+    } else {
+      run = 1;
+    }
+    best = Math.max(best, run);
+    prev = d;
+  });
+
+  // Current streak, counting back from today (today itself doesn't have to be logged yet)
+  let current = 0;
+  let cursor = dateOnly(new Date());
+  const todayKey = cursor.toISOString().slice(0,10);
+  if(!loggedDates.has(todayKey)){
+    cursor.setDate(cursor.getDate()-1);
+  }
+  while(true){
+    const key = cursor.toISOString().slice(0,10);
+    if(loggedDates.has(key)){
+      current++;
+      cursor.setDate(cursor.getDate()-1);
+    } else {
+      break;
+    }
+  }
+  best = Math.max(best, current);
+  return {current, best};
+}
+
+function renderStreak(){
+  const {current, best} = calculateStreak();
+  const badge = document.getElementById('streakBadge');
+  document.getElementById('streakNum').textContent = current + ' hari';
+  document.getElementById('streakBest').textContent = 'terbaik: ' + best;
+  badge.classList.toggle('lit', current > 0);
+}
+
+function renderWeekBars(){
+  const container = document.getElementById('weekBars');
+  container.innerHTML = '';
+  const days = [];
+  for(let i=6;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    days.push(d.toISOString().slice(0,10));
+  }
+  const map = {};
+  entries.forEach(e => { map[e.date] = e.calories; });
+  const maxCal = Math.max(1800, ...days.map(d => map[d]||0));
+  const dayLabels = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+
+  days.forEach(d => {
+    const val = map[d] || 0;
+    const h = val ? Math.max(6, (val/maxCal)*100) : 4;
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    const dow = dayLabels[new Date(d+'T00:00:00').getDay()];
+    col.innerHTML = `<div style="font-size:10px;color:var(--plum-soft);">${val||''}</div>
+      <div class="bar" style="height:${h}%"></div>
+      <div class="day-lbl">${dow}</div>`;
+    container.appendChild(col);
+  });
+}
+
+function renderHistory(){
+  const list = document.getElementById('historyList');
+  if(entries.length === 0){
+    list.innerHTML = '<div class="empty">Belum ada catatan. Yuk isi form di atas buat mulai! 🌸</div>';
+    return;
+  }
+  const sorted = [...entries].sort((a,b)=> new Date(b.date) - new Date(a.date));
+  list.innerHTML = sorted.map(e => `
+    <div class="history-item">
+      <div class="mood-emoji">${e.mood}</div>
+      <div class="meta">
+        <div class="top">
+          <span>${formatDate(e.date)}</span>
+          <button class="del-btn" onclick="deleteEntry('${e.id}')">hapus</button>
+        </div>
+        <div class="stats">${e.weight} kg · ${e.calories} kkal</div>
+        ${e.note ? `<div class="note">${escapeHtml(e.note)}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function formatDate(str){
+  const d = new Date(str+'T00:00:00');
+  return d.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'});
+}
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+window.deleteEntry = function(id){
+  entries = entries.filter(e => e.id !== id);
+  saveEntries();
+  renderAll();
+}
+
+function renderAll(){
+  renderHero();
+  renderStreak();
+  renderWeekBars();
+  renderHistory();
+}
+
+document.querySelectorAll('.mood-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedMood = btn.dataset.mood;
+  });
+});
+document.querySelector('.mood-btn').classList.add('active');
+
+document.getElementById('dateInput').value = todayStr();
+
+document.getElementById('entryForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const date = document.getElementById('dateInput').value;
+  const weight = parseFloat(document.getElementById('weightInput').value);
+  const calories = parseInt(document.getElementById('calInput').value, 10);
+  const note = document.getElementById('noteInput').value.trim();
+
+  if(!date || isNaN(weight) || isNaN(calories)) return;
+
+  entries = entries.filter(en => en.date !== date);
+  entries.push({
+    id: Date.now().toString(),
+    date, weight, calories,
+    mood: selectedMood,
+    note
+  });
+  saveEntries();
+  document.getElementById('weightInput').value = '';
+  document.getElementById('calInput').value = '';
+  document.getElementById('noteInput').value = '';
+  renderAll();
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(entries, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'peach-journey-backup.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try{
+      const imported = JSON.parse(evt.target.result);
+      if(Array.isArray(imported)){
+        entries = imported;
+        saveEntries();
+        renderAll();
+      }
+    }catch(err){
+      alert('File backup tidak valid.');
+    }
+  };
+  reader.readAsText(file);
+});
+
+loadEntries();
+renderAll();
+</script>
+</body>
+</html>
